@@ -8,11 +8,13 @@ import (
 var standardDeckCount int = 4 * 13
 
 func ExampleCard() {
-	fmt.Println(Card{Rank: King, Suit: Diamond})
-	fmt.Println(Card{Rank: Ace, Suit: Spade})
-	fmt.Println(Card{Rank: Ten, Suit: Heart})
+	fmt.Println(Card{Rank: King, Suit: Diamond, Visible: true})
+	fmt.Println(Card{Rank: Ace, Suit: Spade, Visible: true})
+	fmt.Println(Card{Rank: Ten, Suit: Heart, Visible: true})
+	fmt.Println(Card{Rank: Jack, Suit: Club, Visible: true})
+	fmt.Println(Card{Rank: Joker, Suit: Diamond, Visible: true})
+	fmt.Println(Card{Rank: Jack, Suit: Club, Visible: false})
 	fmt.Println(Card{Rank: Jack, Suit: Club})
-	fmt.Println(Card{Rank: Joker, Suit: Diamond})
 
 	// Output:
 	// | King of Diamonds |
@@ -20,6 +22,8 @@ func ExampleCard() {
 	// | Ten of Hearts |
 	// | Jack of Clubs |
 	// | Joker |
+	// | FACE DOWN |
+	// | FACE DOWN |
 }
 
 func TestNew(t *testing.T) {
@@ -45,7 +49,7 @@ func descending(d *Deck) func(i, j int) bool {
 
 func TestDefaultSort(t *testing.T) {
 	sortedDeck := New(DefaultSort())
-	card := Card{Rank: Ace, Suit: Spade}
+	card := Card{Rank: Ace, Suit: Spade, Visible: true}
 	if sortedDeck[0] != card {
 		t.Errorf("First card was expected to be %s but it was %s", card, sortedDeck[0])
 	}

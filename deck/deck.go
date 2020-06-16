@@ -51,11 +51,15 @@ const (
 
 // Card with rank and suit
 type Card struct {
-	Rank Rank
-	Suit Suit
+	Rank    Rank
+	Suit    Suit
+	Visible bool
 }
 
 func (c Card) String() string {
+	if !c.Visible {
+		return "| FACE DOWN |"
+	}
 	if c.Rank == Joker {
 		return fmt.Sprintf("| %s |", Joker)
 	}
@@ -73,7 +77,7 @@ func New(opts ...Option) Deck {
 	deck := Deck{}
 	for _, suit := range suits {
 		for i := MinRank; i <= MaxRank; i++ {
-			deck = append(deck, Card{Rank: i, Suit: suit})
+			deck = append(deck, Card{Rank: i, Suit: suit, Visible: true})
 		}
 	}
 	for _, opt := range opts {
