@@ -104,3 +104,19 @@ func TestSize(t *testing.T) {
 	}
 
 }
+
+func TestDraw(t *testing.T) {
+	nToDraw := 3
+	deck := New()
+	deckLength := len(deck)
+	cards := deck.Draw(nToDraw)
+	firstNFromDeck := New()[:nToDraw]
+	for i, card := range cards {
+		if card != firstNFromDeck[i] {
+			t.Errorf("Error drawing the card on possition %d. Expected %s, got %s", i, firstNFromDeck[i], card)
+		}
+	}
+	if deckLength-nToDraw != len(deck) {
+		t.Errorf("Error while removing cards from the deck after drawing. Expected length of a new deck %d, got %d", len(deck), deckLength-nToDraw)
+	}
+}

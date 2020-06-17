@@ -69,6 +69,16 @@ func (c Card) String() string {
 // Deck is constructed from multiple cards
 type Deck []Card
 
+// Draw draws first n cards from the deck and removes those cards for it
+func (d *Deck) Draw(n int) []Card {
+	cards := []Card{}
+	for i := 0; i < n; i++ {
+		cards = append(cards, (*d)[i])
+	}
+	*d = (*d)[n:]
+	return cards
+}
+
 // Option represents a type for functional options
 type Option func(d *Deck)
 
