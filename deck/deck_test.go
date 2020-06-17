@@ -17,13 +17,13 @@ func ExampleCard() {
 	fmt.Println(Card{Rank: Jack, Suit: Club})
 
 	// Output:
-	// | King of Diamonds |
-	// | Ace of Spades |
-	// | Ten of Hearts |
-	// | Jack of Clubs |
-	// | Joker |
-	// | FACE DOWN |
-	// | FACE DOWN |
+	// King of Diamonds
+	// Ace of Spades
+	// Ten of Hearts
+	// Jack of Clubs
+	// Joker
+	// FACEDOWN
+	// FACEDOWN
 }
 
 func TestNew(t *testing.T) {
@@ -49,7 +49,7 @@ func descending(d *Deck) func(i, j int) bool {
 
 func TestDefaultSort(t *testing.T) {
 	sortedDeck := New(DefaultSort())
-	card := Card{Rank: Ace, Suit: Spade, Visible: true}
+	card := Card{Rank: Ace, Suit: Spade, Visible: true, Point: 1}
 	if sortedDeck[0] != card {
 		t.Errorf("First card was expected to be %s but it was %s", card, sortedDeck[0])
 	}
@@ -117,6 +117,100 @@ func TestDraw(t *testing.T) {
 		}
 	}
 	if deckLength-nToDraw != len(deck) {
-		t.Errorf("Error while removing cards from the deck after drawing. Expected length of a new deck %d, got %d", len(deck), deckLength-nToDraw)
+		t.Errorf("Error while removing cards from the deck after drawing. Expected length of a new deck %d, got %d", deckLength-nToDraw, len(deck))
+	}
+}
+
+func TestDefaultPoints(t *testing.T) {
+	deck := New()
+	for _, card := range deck {
+		if card.Rank == Jack || card.Rank == Queen || card.Rank == King {
+			if card.Point != int(card.Rank)+1 {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, int(card.Rank)+1)
+			}
+		} else {
+			if card.Point != int(card.Rank) {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, int(card.Rank))
+			}
+		}
+	}
+}
+
+func TestFacePoints(t *testing.T) {
+	facePoints := 10
+	deck := New()
+	deck.FacePoints(facePoints)
+	for _, card := range deck {
+		if card.Rank == Jack || card.Rank == Queen || card.Rank == King {
+			if card.Point != facePoints {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, facePoints)
+			}
+		} else {
+			if card.Point != int(card.Rank) {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, int(card.Rank))
+			}
+		}
+	}
+}
+
+func TestRankPoints(t *testing.T) {
+	rankPts := 10
+	deck := New()
+	chosenRank := Five
+	deck.RankPoints(chosenRank, rankPts)
+	for _, card := range deck {
+		if card.Rank == chosenRank {
+			if card.Point != rankPts {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, rankPts)
+			}
+		} else if card.Rank == Jack || card.Rank == Queen || card.Rank == King {
+			if card.Point != int(card.Rank)+1 {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, int(card.Rank)+1)
+			}
+		} else {
+			if card.Point != int(card.Rank) {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, int(card.Rank))
+			}
+		}
+	}
+}
+
+func TestSuitPoints(t *testing.T) {
+	suitPts := 10
+	deck := New()
+	chosenSuit := Heart
+	deck.SuitPoints(chosenSuit, suitPts)
+	for _, card := range deck {
+		if card.Suit == chosenSuit {
+			if card.Point != suitPts {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, suitPts)
+			}
+		}
+	}
+}
+
+func TestAddPoints(t *testing.T) {
+	pts := 75
+	deck := New()
+	chosenSuit := Heart
+	chosenRank := Queen
+	deck.AddPoints(chosenRank, chosenSuit, pts)
+	for _, card := range deck {
+		if card.Suit == chosenSuit && card.Rank == chosenRank {
+			if card.Point != pts {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, pts)
+			}
+		}
+	}
+	chosenRank = Joker
+	jokerDeck := New(Jokers(5))
+	jokerPts := 90
+	jokerDeck.AddPoints(Joker, Diamond, jokerPts)
+	for _, card := range deck {
+		if card.Rank == Joker {
+			if card.Point != jokerPts {
+				t.Errorf("Rank for %s is %d, expected %d", card, card.Point, jokerPts)
+			}
+		}
 	}
 }

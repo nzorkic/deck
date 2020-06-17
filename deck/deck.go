@@ -54,16 +54,28 @@ type Card struct {
 	Rank    Rank
 	Suit    Suit
 	Visible bool
+	Point   int
+}
+
+// Points returns sum of poinrs from provided cards
+func Points(cards []Card) int {
+	res := 0
+	for _, card := range cards {
+		if card.Visible {
+			res += card.Point
+		}
+	}
+	return res
 }
 
 func (c Card) String() string {
 	if !c.Visible {
-		return "| FACE DOWN |"
+		return "FACEDOWN"
 	}
 	if c.Rank == Joker {
-		return fmt.Sprintf("| %s |", Joker)
+		return Joker.String()
 	}
-	return fmt.Sprintf("| %s of %ss |", c.Rank, c.Suit)
+	return fmt.Sprintf("%s of %ss", c.Rank, c.Suit)
 }
 
 // Deck is constructed from multiple cards
@@ -79,6 +91,48 @@ func (d *Deck) Draw(n int) []Card {
 	return cards
 }
 
+// FacePoints sets n points to all Face cards (Jack, Queen, King)
+func (d *Deck) FacePoints(n int) {
+	deck := *d
+	for i, card := range deck {
+		if card.Rank == Jack || card.Rank == Queen || card.Rank == King {
+			deck[i].Point = n
+		}
+	}
+}
+
+// RankPoints sets n points for all cards of rank r
+func (d *Deck) RankPoints(r Rank, n int) {
+	deck := *d
+	for i, card := range deck {
+		if card.Rank == r {
+			deck[i].Point = n
+		}
+	}
+}
+
+// SuitPoints sets n points for all cards of suit s
+func (d *Deck) SuitPoints(s Suit, n int) {
+	deck := *d
+	for i, card := range deck {
+		if card.Suit == s {
+			deck[i].Point = n
+		}
+	}
+}
+
+// AddPoints sets n points to a card with rank r and suir s
+func (d *Deck) AddPoints(r Rank, s Suit, n int) {
+	deck := *d
+	for i, card := range deck {
+		if r == Joker && card.Rank == r {
+			deck[i].Point = n
+		} else if card.Rank == r && card.Suit == s {
+			deck[i].Point = n
+		}
+	}
+}
+
 // Option represents a type for functional options
 type Option func(d *Deck)
 
@@ -90,6 +144,7 @@ func New(opts ...Option) Deck {
 			deck = append(deck, Card{Rank: i, Suit: suit, Visible: true})
 		}
 	}
+	defaultPoints(&deck)
 	for _, opt := range opts {
 		opt(&deck)
 	}
@@ -143,7 +198,7 @@ func Without(ranks ...Rank) Option {
 	return func(d *Deck) {
 		deck := Deck{}
 		for _, v := range *d {
-			if contains(ranks, v.Rank) {
+			if contains(&ranks, v.Rank) {
 				continue
 			}
 			deck = append(deck, Card{Rank: v.Rank, Suit: v.Suit})
@@ -152,8 +207,8 @@ func Without(ranks ...Rank) Option {
 	}
 }
 
-func contains(ranks []Rank, rank Rank) bool {
-	for _, v := range ranks {
+func contains(ranks *[]Rank, rank Rank) bool {
+	for _, v := range *ranks {
 		if v == rank {
 			return true
 		}
@@ -166,6 +221,17 @@ func Size(n int) Option {
 	return func(d *Deck) {
 		for i := 1; i < n; i++ {
 			*d = append(*d, New()...)
+		}
+	}
+}
+
+func defaultPoints(d *Deck) {
+	deck := *d
+	for i, card := range deck {
+		if card.Rank == Jack || card.Rank == Queen || card.Rank == King {
+			deck[i].Point = int(card.Rank) + 1
+		} else {
+			deck[i].Point = int(card.Rank)
 		}
 	}
 }
