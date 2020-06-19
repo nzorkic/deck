@@ -57,10 +57,10 @@ type Card struct {
 	Point   int
 }
 
-// Points returns sum of poinrs from provided cards
-func Points(cards []Card) int {
+// Points returns sum of points from provided cards
+func Points(cards *[]Card) int {
 	res := 0
-	for _, card := range cards {
+	for _, card := range *cards {
 		if card.Visible {
 			res += card.Point
 		}

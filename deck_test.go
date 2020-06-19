@@ -214,3 +214,12 @@ func TestAddPoints(t *testing.T) {
 		}
 	}
 }
+
+func TestPoints(t *testing.T) {
+	d := New()
+	cards := d.Draw(13)
+	pts := Points(&cards)
+	if pts != 94 {
+		t.Error("Wrong sum of cards")
+	}
+}
