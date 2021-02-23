@@ -57,17 +57,6 @@ type Card struct {
 	Point   int
 }
 
-// Points returns sum of points from provided cards
-func Points(cards *[]Card) int {
-	res := 0
-	for _, card := range *cards {
-		if card.Visible {
-			res += card.Point
-		}
-	}
-	return res
-}
-
 func (c Card) String() string {
 	if !c.Visible {
 		return "FACEDOWN"
@@ -81,7 +70,7 @@ func (c Card) String() string {
 // Deck is constructed from multiple cards
 type Deck []Card
 
-// Draw draws first n cards from the deck and removes those cards for it
+// Draw draws first n cards from the deck
 func (d *Deck) Draw(n int) []Card {
 	cards := []Card{}
 	for i := 0; i < n; i++ {
@@ -193,6 +182,17 @@ func Jokers(n int) Option {
 	}
 }
 
+// SumPoints returns sum of points from provided cards
+func SumPoints(cards []Card) int {
+	res := 0
+	for _, card := range cards {
+		if card.Visible {
+			res += card.Point
+		}
+	}
+	return res
+}
+
 // Without creates a deck without specified cards
 func Without(ranks ...Rank) Option {
 	return func(d *Deck) {
@@ -216,7 +216,7 @@ func contains(ranks *[]Rank, rank Rank) bool {
 	return false
 }
 
-// Size n determens of how many decks will the deck be formed
+// Size will create a deck with a size of n normal decks
 func Size(n int) Option {
 	return func(d *Deck) {
 		for i := 1; i < n; i++ {

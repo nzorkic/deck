@@ -57,20 +57,28 @@ func TestDefaultSort(t *testing.T) {
 
 func TestShuffle(t *testing.T) {
 	deck := New()
-	shuffleDeck := New(Shuffle())
-	if len(deck) != len(shuffleDeck) {
-		t.Errorf("Error while Shuffling, length of shuffled deck is %d while it should be %d", len(shuffleDeck), len(deck))
-	}
-	size := len(deck)
-	same := 0
-	for i := 0; i < size; i++ {
-		if deck[i] == shuffleDeck[i] {
-			same++
+	shuffledDeck := New(Shuffle())
+
+	t.Run("Shuffle produces the same number of cards", func(t *testing.T) {
+		got := len(shuffledDeck)
+		if got != standardDeckCount {
+			t.Errorf("Error while Shuffling, length of shuffled deck is %d while it should be %d", got, standardDeckCount)
 		}
-	}
-	if same == size {
-		t.Error("Shuffled deck has the same card order as standard deck. Shuffling didn't work")
-	}
+	})
+
+	t.Run("Shuffle produces shuffled deck", func(t *testing.T) {
+		identical := 0
+
+		for i := 0; i < standardDeckCount; i++ {
+			if deck[i] == shuffledDeck[i] {
+				identical++
+			}
+		}
+
+		if identical == standardDeckCount {
+			t.Errorf("Error while Shuffling, deck is not shuffled")
+		}
+	})
 }
 
 func TestJokers(t *testing.T) {
@@ -106,19 +114,26 @@ func TestSize(t *testing.T) {
 }
 
 func TestDraw(t *testing.T) {
-	nToDraw := 3
+	drawAmount := 3
 	deck := New()
-	deckLength := len(deck)
-	cards := deck.Draw(nToDraw)
-	firstNFromDeck := New()[:nToDraw]
-	for i, card := range cards {
-		if card != firstNFromDeck[i] {
-			t.Errorf("Error drawing the card on possition %d. Expected %s, got %s", i, firstNFromDeck[i], card)
+
+	t.Run("Draw takes cards in correct order", func(t *testing.T) {
+		cards := deck.Draw(drawAmount)
+		firstNFromDeck := New()[:drawAmount]
+		for i, card := range cards {
+			if card != firstNFromDeck[i] {
+				t.Errorf("Error drawing the card on possition %d. Expected %s, got %s", i, firstNFromDeck[i], card)
+			}
 		}
-	}
-	if deckLength-nToDraw != len(deck) {
-		t.Errorf("Error while removing cards from the deck after drawing. Expected length of a new deck %d, got %d", deckLength-nToDraw, len(deck))
-	}
+	})
+
+	t.Run("Draw reduces correct amount of cards from the deck", func(t *testing.T) {
+		got := standardDeckCount - drawAmount
+		want := len(deck)
+		if got != want {
+			t.Errorf("Error while removing cards from the deck after drawing. Expected length of a new deck %d, got %d", got, want)
+		}
+	})
 }
 
 func TestDefaultPoints(t *testing.T) {
@@ -218,8 +233,11 @@ func TestAddPoints(t *testing.T) {
 func TestPoints(t *testing.T) {
 	d := New()
 	cards := d.Draw(13)
-	pts := Points(&cards)
-	if pts != 94 {
-		t.Error("Wrong sum of cards")
+
+	got := SumPoints(cards)
+	want := 94
+
+	if got != want {
+		t.Errorf("Wrong sum of first 13 cards, got %d, want %d", got, want)
 	}
 }
